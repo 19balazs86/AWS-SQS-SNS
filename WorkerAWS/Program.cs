@@ -1,3 +1,4 @@
+using Amazon.SQS;
 using WorkerAWS.Workers;
 
 namespace WorkerAWS;
@@ -12,6 +13,9 @@ public static class Program
         // Add services to the container
         {
             services.AddHostedService<WorkerSenderSQS>();
+            services.AddHostedService<WorkerReceiverSQS>();
+
+            services.AddSingleton<IAmazonSQS>(new AmazonSQSClient());
         }
 
         // Run

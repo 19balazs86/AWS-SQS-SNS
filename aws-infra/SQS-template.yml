@@ -1,0 +1,42 @@
+# AWS CLI Command Reference
+# https://docs.aws.amazon.com/cli/latest
+
+# aws cloudformation validate-template --template-body file://./SQS-template.yaml
+# aws cloudformation create-stack --stack-name My-SQS-Stack --template-body file://./SQS-template.yaml
+# aws cloudformation update-stack --stack-name My-SQS-Stack --template-body file://./SQS-template.yaml
+
+# CloudFormation templates
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-guide.html
+
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Creating two queues, one for normal usage and the other for dead letters
+
+Parameters:
+  QueueName:
+    Type: String
+    Default: 'TestQueue'
+    Description: 'The name of the Queue'
+
+Resources:
+  # Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sqs-queue.html
+  TestSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref QueueName
+      VisibilityTimeout: 30
+      MessageRetentionPeriod: 345600 # 4 days by default
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt TestDLQQueue.Arn
+        maxReceiveCount: 3
+  
+  TestDLQQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${QueueName}-DLQ"
+      MessageRetentionPeriod: 864000 # 10 days
+
+Outputs:
+  QueueUrl:
+    Description: URL of the newly created SQS queue
+    Value: !Ref TestSQSQueue

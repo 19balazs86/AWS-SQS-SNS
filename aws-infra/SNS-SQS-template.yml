@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Creating an SNS with 2 SQS and 2 Subscriptions for them
+
+Resources:  
+  # Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sns-topic.html
+  SNSTopic:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      TopicName: 'SNSTopic'
+
+  # Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sqs-queue.html
+  Queue1:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: 'Queue1'
+      
+  Queue2:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: 'Queue2'
+
+  # Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sqs-queuepolicy.html
+  Queue1Policy:
+    Type: 'AWS::SQS::QueuePolicy'
+    Properties:
+      Queues:
+        - !Ref Queue1
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 'SQS:SendMessage'
+            Resource: !GetAtt Queue1.Arn
+            Condition:
+              ArnEquals:
+                'aws:SourceArn': !Ref SNSTopic
+                
+  Queue2Policy:
+    Type: 'AWS::SQS::QueuePolicy'
+    Properties:
+      Queues:
+        - !Ref Queue2
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 'SQS:SendMessage'
+            Resource: !GetAtt Queue2.Arn
+            Condition:
+              ArnEquals:
+                'aws:SourceArn': !Ref SNSTopic
+
+  # Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sns-subscription.html
+  MySubscription1:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn: !Ref SNSTopic
+      Protocol: 'sqs'
+      Endpoint: !GetAtt Queue1.Arn
+      RawMessageDelivery: true
+      
+  MySubscription2:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn: !Ref SNSTopic
+      Protocol: 'sqs'
+      Endpoint: !GetAtt Queue2.Arn
+      RawMessageDelivery: true

@@ -1,3 +1,4 @@
+using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using WorkerAWS.Workers;
 
@@ -15,7 +16,11 @@ public static class Program
             services.AddHostedService<WorkerSenderSQS>();
             services.AddHostedService<WorkerReceiverSQS>();
 
+            services.AddHostedService<WorkerPublisherSNS>();
+            services.AddHostedService<WorkerReceiverTopicSQS>();
+
             services.AddSingleton<IAmazonSQS>(new AmazonSQSClient());
+            services.AddSingleton<IAmazonSimpleNotificationService>(new AmazonSimpleNotificationServiceClient());
         }
 
         // Run

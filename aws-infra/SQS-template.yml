@@ -1,13 +1,3 @@
-# AWS CLI Command Reference
-# https://docs.aws.amazon.com/cli/latest
-
-# aws cloudformation validate-template --template-body file://./SQS-template.yaml
-# aws cloudformation create-stack --stack-name My-SQS-Stack --template-body file://./SQS-template.yaml
-# aws cloudformation update-stack --stack-name My-SQS-Stack --template-body file://./SQS-template.yaml
-
-# CloudFormation templates
-# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-guide.html
-
 AWSTemplateFormatVersion: '2010-09-09'
 
 Description: Creating two queues, one for normal usage and the other for dead letters
